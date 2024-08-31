@@ -1,0 +1,26 @@
+version: '3'
+services:
+  mongodb:
+    image: 'mongo:latest'
+    container_name: mongo
+    environment:
+      - 'MONGO_INITDB_DATABASE=patients'
+    ports:
+      - '27017:21017'
+    volumes:
+      - mongo-data:/data/db
+
+  patient-service:
+    build:
+      dockerfile: Dockerfile
+    container_name: patient-service
+    depends_on:
+      - mongodb
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/patients
+      JAVA_HOME: /usr/java/openjdk-21
+    command: sh -c "/app/mvnw clean install && java -jar ./target/server-0.0.1-SNAPSHOT.jar"
+volumes:
+  mongo-data:

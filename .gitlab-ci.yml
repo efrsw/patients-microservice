@@ -1,0 +1,33 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_TLS_CERTDIR: ""
+
+stages:
+  - build
+  - test
+
+before_script:
+  - docker info
+
+build:
+  stage: build
+  script:
+    - cd 'PDP 3 Submission - to be graded'
+    - docker-compose build
+  artifacts:
+    paths:
+      - 'PDP 3 Submission - to be graded/compose.yaml'
+
+test:
+  stage: test
+  dependencies:
+    - build
+  script:
+    - cd 'PDP 3 Submission - to be graded'
+    - docker-compose up -d --wait
+    - docker-compose exec patient-service /app/mvnw test
+    - docker-compose down
